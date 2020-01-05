@@ -57,15 +57,11 @@ namespace DrawingProgram {
             if (words[0].Equals("run")){ // If given the "run" command, then split the rich text box into an array and iterate over each command
                 txt = richTextBox1.Text;
                 commands = txt.Split('\n');
-                foreach (String command in commands) {
+                Codex codex = new Codex(commands.ToList());
+                foreach (String command in codex.GetCodex()) {
                     String[] tokens = command.Split(' ');
                     RunCommand(tokens);
-                    if (loop == true) {
-                        loopcoms[i] = tokens;
-                        i++;
-                    }
                     richTextBox1.Clear();
-                    commandCounter++;
                 }
             }
             else {
@@ -202,32 +198,6 @@ namespace DrawingProgram {
                         case ("save"):
                             using (File.Create(args[1])) ;
                             richTextBox1.SaveFile(args[1], RichTextBoxStreamType.PlainText);
-                            break;
-
-                        case ("var"):
-                            vars[0, varCounter] = args[1];
-                            vars[1, varCounter] = args[3];
-                            break;
-
-
-                        case ("loop"):
-                            loopCounter = int.Parse(args[1]);
-                            loop = true;
-                            break;
-
-                        case ("end"):
-                            int j = 0;
-                            loop = false;
-                            loopcoms[i] = null;
-                            while(j < loopCounter) {
-                                foreach (String[] command in loopcoms) {
-                                    if (command != null) {
-                                        RunCommand(command);
-                                    }
-                                    else break;
-                                }
-                                j++;
-                            }
                             break;
 
                         default:
