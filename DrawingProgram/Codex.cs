@@ -7,80 +7,95 @@ using System.Windows.Forms;
 
 namespace DrawingProgram {
 
-	public class Codex {
+    public class Codex {
 
-		List<String> codex = new List<String>();
-		List<String> stopwords = new List<String> { "loop", "end", "if", "endif" };
+        Block codex;
+        List<String> stopwords = new List<String> { "loop", "end", "if", "endif" };
+        Dictionary<String, int> vars = new Dictionary<string, int>();
 
-		int count = 0;
+        int count = 0;
 
-		public List<String> GetCodex() {
-			return codex;
-		}
-		public Codex(List<String> input) {
-			// if(input[0].Contains("Method") { }
-			codex.AddRange(ReadTo(count, input, stopwords));
-			String[] stopline = input[count].Split(' ');
-			switch (stopline[0]) {
-				case "loop":
-					codex.AddRange(UnrollLoop(count, input, int.Parse(stopline[1])));
-					break;
-				case "end":
-					MessageBox.Show("end");
-					break;
-				case "if":
-					MessageBox.Show("if");
-					break;
-				case "endif":
-					MessageBox.Show("endif");
-					break;
-			}
-		}
+        public Block GetBlock() {
+            return codex;
+        }
+        public Codex(List<String> input) {
+            List<String> preblock = new List<string>();
+            preblock.AddRange(UnrollLoop(input));
+            codex = new Block(preblock);
+            
+        }
 
-		public List<String> ReadTo(List<String> commands, List<String> stops) {
-			List<String> output = new List<String>();
-			foreach (String command in commands) {
-				if (!stops.Any(s => command.Contains(s))) {
-					output.Add(command);
-				}
-				count++;
-			}
-			return output;
-		}
+        public List<String> ReadTo(List<String> commands, List<String> stops) {
+            List<String> output = new List<String>();
+            foreach (String command in commands) {
+                if (!stops.Any(s => command.Contains(s))) {
+                    output.Add(command);
+                }
+                count++;
+            }
+            return output;
+        }
 
-		public List<String> ReadTo(int index, List<String> commands, List<String> stops) {
-			List<String> output = new List<String>();
-			foreach (String command in commands) {
-				if (commands.IndexOf(command) >= index) {
-					if (!stops.Any(s => command.Contains(s))) {
-						output.Add(command);
-					}
-					else return output;
-				}
-				count++;
-			}
-			return output;
-		}
+        public List<String> ReadTo(int index, List<String> commands, List<String> stops) {
+            List<String> output = new List<String>();
+            foreach (String command in commands) {
+                if (commands.IndexOf(command) >= index) {
+                    if (!stops.Any(s => command.Contains(s))) {
+                        output.Add(command);
+                    }
+                    else return output;
+                }
+                count++;
+            }
+            return output;
+        }
 
-		public List<String> UnrollLoop(int index, List<String> commands, int loop) {
-			List<String> output = new List<String>();
-			bool thrower = true;
-			for (int i = 0; i < loop; i++) {
-				foreach (String command in commands) {
-					if (commands.IndexOf(command) >= index) {
-						if (!command.Equals("end")) {
-							output.Add(command);
-						}
-						else {
-							thrower = false;
-							break;
-						}
-					}
-				}
-			}
-			if (thrower == true) throw new OpenLoopException();
-			else return output;
-		}
+        public Block ReplaceVars(Block input) {
+            String[] line;
+            bool pass = true;
+            List<String[]> lines = new List<string[]>();
+            for (int i = 0; i < input.Length(); i++) {
+                line = input.Step();
+                if (line[0].Equals("var")) {
+                    vars.Add(line[1], int.Parse(line[3]));
+                    pass = false;
+                }
+                else {
+                    foreach (KeyValuePair<String, int> entry in vars) {
+                        if (line.Contains(entry.Key)) {
+                            line[Array.IndexOf(line, entry.Key)] = entry.Value.ToString();
+                        }
+                    }
+                }
+                if (pass) lines.Add(line);
+            }
+            return new Block(lines);
+        }
 
-	}
+        public List<String> UnrollLoop(List<String> commands) {
+            List<String> preblock = new List<String>();
+            List<String> loopblock = new List<String>();
+            bool add = false;
+            int loop = 0;
+            foreach(String command in commands) {
+                if (command.Contains("loop")) {
+                    add = true;
+                    loop = int.Parse(command.Split(' ')[1]);
+                }
+                else if (command.Equals("end")) {
+                    add = false;
+                    for (int i = 0; i <= loop; i++) {
+                        loopblock.AddRange(loopblock);
+                        preblock.AddRange(loopblock);
+                    }
+                }
+                else if (add) loopblock.Add(command);
+                else preblock.Add(command);
+            }
+            
+            return preblock;
+        }
+
+    }
 }
+

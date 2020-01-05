@@ -20,12 +20,12 @@ namespace DrawingProgram {
         public String err;
         int[] penPos = new int[2] { 0, 0 };
 
+        Codex codex;
+
         String[] commands;
 
         public String[,] vars = new String[2,64];
 
-        int varCounter = 0;
-        int loopCounter = 0;
         int commandCounter = 0;
         int i = 0;
 
@@ -37,11 +37,6 @@ namespace DrawingProgram {
             
             InitializeComponent();
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-        }
-
-        // TODO: Implement
-        public void ClearVars() {
-
         }
 
         void goButton_Click(object sender, EventArgs e) {
@@ -57,11 +52,10 @@ namespace DrawingProgram {
             if (words[0].Equals("run")){ // If given the "run" command, then split the rich text box into an array and iterate over each command
                 txt = richTextBox1.Text;
                 commands = txt.Split('\n');
-                Codex codex = new Codex(commands.ToList());
-                foreach (String command in codex.GetCodex()) {
-                    String[] tokens = command.Split(' ');
-                    RunCommand(tokens);
-                    richTextBox1.Clear();
+                codex = new Codex(commands.ToList());
+                Block runtime = codex.GetBlock();
+                foreach (String[] command in runtime.Enum()) {
+                    RunCommand(command);
                 }
             }
             else {
