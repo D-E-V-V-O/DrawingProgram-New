@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace DrawingProgram {
-    public class Block {
+    public class Block : IEnumerable<String[]> {
 
         List<String[]> lines;
         int pos;
@@ -22,6 +22,12 @@ namespace DrawingProgram {
                 String[] tokens = line.Split(' ');
                 lines.Add(tokens);
             }
+            pos = 0;
+        }
+
+        public Block() {
+            lines = new List<String[]>();
+            pos = 0;
         }
 
         public String[] Step() {
@@ -30,12 +36,6 @@ namespace DrawingProgram {
                 return lines[pos - 1];
             }
             else return null;
-        }
-
-        public IEnumerable<String[]> Enum() {
-            foreach (String[] line in lines) {
-                yield return line;
-            }
         }
 
         public int Length() {
@@ -66,6 +66,16 @@ namespace DrawingProgram {
             }
             lines.AddRange(preblock);
         }
+
+        public IEnumerator<String[]> GetEnumerator() {
+            return lines.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
+
+        
 
     }
 }

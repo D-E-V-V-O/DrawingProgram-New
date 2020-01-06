@@ -53,8 +53,7 @@ namespace DrawingProgram {
                 txt = richTextBox1.Text;
                 commands = txt.Split('\n');
                 codex = new Codex(commands.ToList());
-                Block runtime = codex.GetBlock();
-                foreach (String[] command in runtime.Enum()) {
+                foreach (String[] command in codex.Enum()) {
                     RunCommand(command);
                 }
             }

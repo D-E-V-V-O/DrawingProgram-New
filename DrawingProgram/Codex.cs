@@ -14,48 +14,24 @@ namespace DrawingProgram {
         Dictionary<String, int> vars = new Dictionary<string, int>();
 
         int count = 0;
+        
+        public Codex(List<String> input) {
+            codex = new Block();
+            codex = ExpandMethods(codex);
+            codex = ReplaceVars(codex);
+            codex = EvaluateIf(codex);
+            codex = UnrollLoop(codex);            
+        }
 
         public Block GetBlock() {
             return codex;
         }
-        public Codex(List<String> input) {
-            List<String> preblock = new List<string>();
-            preblock.AddRange(UnrollLoop(input));
-            codex = new Block(preblock);
-            
-        }
 
-        public List<String> ReadTo(List<String> commands, List<String> stops) {
-            List<String> output = new List<String>();
-            foreach (String command in commands) {
-                if (!stops.Any(s => command.Contains(s))) {
-                    output.Add(command);
-                }
-                count++;
-            }
-            return output;
-        }
-
-        public List<String> ReadTo(int index, List<String> commands, List<String> stops) {
-            List<String> output = new List<String>();
-            foreach (String command in commands) {
-                if (commands.IndexOf(command) >= index) {
-                    if (!stops.Any(s => command.Contains(s))) {
-                        output.Add(command);
-                    }
-                    else return output;
-                }
-                count++;
-            }
-            return output;
-        }
-
-        public Block ReplaceVars(Block input) {
-            String[] line;
-            bool pass = true;
+        private Block ReplaceVars(Block masterblock) {
+            bool pass;
             List<String[]> lines = new List<string[]>();
-            for (int i = 0; i < input.Length(); i++) {
-                line = input.Step();
+            foreach (String[] line in masterblock) {
+                pass = true;
                 if (line[0].Equals("var")) {
                     vars.Add(line[1], int.Parse(line[3]));
                     pass = false;
@@ -72,28 +48,41 @@ namespace DrawingProgram {
             return new Block(lines);
         }
 
-        public List<String> UnrollLoop(List<String> commands) {
+        private Block UnrollLoop(Block masterblock) {
             List<String> preblock = new List<String>();
             List<String> loopblock = new List<String>();
-            bool add = false;
+            bool add = false; 
             int loop = 0;
-            foreach(String command in commands) {
+            foreach(String[] command in masterblock) {
                 if (command.Contains("loop")) {
                     add = true;
-                    loop = int.Parse(command.Split(' ')[1]);
+                    loop = int.Parse(command[1]); // Grab the loop number from the second word of the command
                 }
-                else if (command.Equals("end")) {
+                else if (command[0].Equals("end")) {
                     add = false;
-                    for (int i = 0; i <= loop; i++) {
+                    for (int i = 1; i < loop; i++) {
                         loopblock.AddRange(loopblock);
-                        preblock.AddRange(loopblock);
                     }
+                    preblock.AddRange(loopblock);
                 }
-                else if (add) loopblock.Add(command);
-                else preblock.Add(command);
+                else if (add) loopblock.Add(command.ToString());
+                else preblock.Add(command.ToString());
             }
-            
-            return preblock;
+            return new Block(preblock);
+        }
+
+        private Block EvaluateIf(Block masterblock){
+            return masterblock;
+        }
+
+        private Block ExpandMethods(Block masterblock){
+            return masterblock;
+        }
+
+        public IEnumerable<String[]> Enum(){
+            foreach (String[] line in codex.Enum()){
+                yield return line;
+            }
         }
 
     }
