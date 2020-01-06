@@ -13,8 +13,7 @@ namespace DrawingProgram {
         Block codex;
         List<String> stopwords = new List<String> { "loop", "end", "if", "endif" };
         Dictionary<String, int> vars = new Dictionary<string, int>();
-
-        int count = 0;
+        Dictionary<String, List<String[]>> methods = new Dictionary<String, List<String[]>>();
         
         public Codex(List<String> input) {
             codex = new Block(input);
@@ -154,6 +153,15 @@ namespace DrawingProgram {
         }
 
         private Block ExpandMethods(Block masterblock){
+            bool add;
+            List<String[]> preblock;
+            String name;
+            foreach(String[] command in masterblock){
+                if(command[0].Equals("method")){
+                    add = true;
+                    name = 
+                }
+            }
             return masterblock;
         }
 
