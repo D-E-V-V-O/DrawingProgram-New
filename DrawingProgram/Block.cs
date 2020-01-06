@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace DrawingProgram {
     public class Block : IEnumerable<String[]> {
@@ -71,11 +72,13 @@ namespace DrawingProgram {
             return lines.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator() {
+        IEnumerator<String[]> IEnumerable<String[]>.GetEnumerator() {
             return GetEnumerator();
         }
 
-        
+        IEnumerator IEnumerable.GetEnumerator() {
+            return this.GetEnumerator();
+        }
 
     }
 }

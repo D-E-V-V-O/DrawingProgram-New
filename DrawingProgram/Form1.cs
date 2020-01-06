@@ -50,13 +50,17 @@ namespace DrawingProgram {
             }
 
             if (words[0].Equals("run")){ // If given the "run" command, then split the rich text box into an array and iterate over each command
-                txt = richTextBox1.Text;
-                commands = txt.Split('\n');
-                codex = new Codex(commands.ToList());
-                foreach (String[] command in codex.Enum()) {
+                String raw = richTextBox1.Text;
+                List<String> broken = raw.Split('\n').ToList();
+                List<String[]> split = new List<String[]>();
+                foreach (String s in broken) split.Add(s.Split(' '));
+                codex = new Codex(split);
+                foreach (String[] command in codex){
                     RunCommand(command);
                 }
+                richTextBox1.Clear();
             }
+
             else {
                 RunCommand(words);
             }
@@ -194,7 +198,7 @@ namespace DrawingProgram {
                             break;
 
                         default:
-                            MessageBox.Show("Error: Unrecognised Command" + commands[commandCounter]);
+                            MessageBox.Show("Error: Unrecognised Command" + args.ToString());
                             err = "unrec";
                             break;
                     } 
