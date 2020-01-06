@@ -8,7 +8,7 @@ using System.Collections;
 namespace DrawingProgram {
     public class Block : IEnumerable<String[]> {
 
-        List<String[]> lines;
+        protected List<String[]> lines;
         int pos;
 
         public Block(List<String[]> input) {
@@ -36,7 +36,15 @@ namespace DrawingProgram {
                 pos++;
                 return lines[pos - 1];
             }
-            else return null;
+            else return lines[lines.Count - 1];
+        }
+
+        public String[] StepBack() {
+            if (pos > 0) {
+                pos--;
+                return lines[pos + 1];
+            }
+            else return lines[0];
         }
 
         public int Length() {

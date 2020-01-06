@@ -13,7 +13,7 @@ namespace DrawingProgram {
         Block codex;
         List<String> stopwords = new List<String> { "loop", "end", "if", "endif" };
         Dictionary<String, int> vars = new Dictionary<string, int>();
-        Dictionary<String, List<String[]>> methods = new Dictionary<String, List<String[]>>();
+        Dictionary<String, Method> methods = new Dictionary<String, Method>();
         
         public Codex(List<String> input) {
             codex = new Block(input);
@@ -157,22 +157,43 @@ namespace DrawingProgram {
             List<String[]> preblock = new List<string[]>();
             List<String[]> tempblock = new List<string[]>();
             String name = null;
+            String[] temparr;
+            Method method;
             foreach(String[] command in masterblock){                
                 if(command[0].Equals("method")){
                     add = true;
                     name = command[1];
                     tempblock = new List<string[]>();
+                    tempblock.Add(command);
                 }                
                 else if (command[0].Equals("endmethod")){
                     add = false;
-                    methods.Add(name, tempblock);
+                    methods.Add(name, new Method(tempblock));
                 }
                 else if (add == true) {
                     tempblock.Add(command);
                 }
                 else if (command[0].Equals("call")){
-                    if (methods.TryGetValue(command[1], out tempblock)) preblock.AddRange(tempblock);
-                    // else throw new UnknownMethodException();
+                    if (methods.TryGetValue(command[1], out method)) {
+                        tempblock = method.GetFullBlock();
+                        for (int i = 0; i < command.Length; i++) {
+                            if (method.HasParams() && method.GetDict().ContainsKey(command[i])) {
+                                method.SetValue(method.paramnames[i - 2], int.Parse(command[i]));
+                            }
+                        }
+                        foreach (String[] words in tempblock) {
+                            temparr = new String[words.Length];
+                            for(int i = 0; i < words.Length; i++) {
+                                if (method.HasParams() && method.GetDict().ContainsKey(words[i])){
+                                    if (method.GetDict().ContainsKey(words[i])) {
+                                        temparr[i] = method.GetDict()[words[i]].ToString();
+                                    }
+                                    else temparr[i] = words[i];
+                                }
+                            }
+                            if (!words[0].Equals("call")) preblock.Add(temparr);
+                        }
+                    }
                 }
                 else preblock.Add(command);
             }
