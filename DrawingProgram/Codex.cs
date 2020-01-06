@@ -153,16 +153,30 @@ namespace DrawingProgram {
         }
 
         private Block ExpandMethods(Block masterblock){
-            bool add;
-            List<String[]> preblock;
-            String name;
-            foreach(String[] command in masterblock){
+            bool add = false;
+            List<String[]> preblock = new List<string[]>();
+            List<String[]> tempblock = new List<string[]>();
+            String name = null;
+            foreach(String[] command in masterblock){                
                 if(command[0].Equals("method")){
                     add = true;
-                    name = 
+                    name = command[1];
+                    tempblock = new List<string[]>();
+                }                
+                else if (command[0].Equals("endmethod")){
+                    add = false;
+                    methods.Add(name, tempblock);
                 }
+                else if (add == true) {
+                    tempblock.Add(command);
+                }
+                else if (command[0].Equals("call")){
+                    if (methods.TryGetValue(command[1], out tempblock)) preblock.AddRange(tempblock);
+                    // else throw new UnknownMethodException();
+                }
+                else preblock.Add(command);
             }
-            return masterblock;
+            return new Block(preblock);
         }
 
 
